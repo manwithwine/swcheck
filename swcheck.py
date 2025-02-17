@@ -21,11 +21,13 @@ ctk.set_default_color_theme("blue")  # "blue", "green", "dark-blue"
 # Create the main GUI window
 root = ctk.CTk()
 root.title("SWCHECK")
-root.geometry("850x650")
+root.geometry("720x550")
+root.resizable(False, False)
 
 # Set the icon for the window
 icon_path = os.path.join(os.path.dirname(__file__), 'Icon1.ico')  # Ensure the icon is in the same directory
 root.iconbitmap(icon_path)
+
 
 # Function to check for required files and set checkmarks
 def check_files():
@@ -35,6 +37,7 @@ def check_files():
         checkmark_excel.configure(text="✔️")
     if os.path.exists(".env"):
         checkmark_credentials.configure(text="✔️")
+
 
 # Function to display the result log
 def show_result_log(output):
@@ -55,11 +58,12 @@ def show_result_log(output):
     close_button = ctk.CTkButton(log_window, text="Закрыть", command=log_window.destroy, width=100)
     close_button.pack(pady=10)
 
+
 # Add this function to display the guide
 def show_guide():
     guide_window = ctk.CTkToplevel(root)
     guide_window.title("Руководство по использованию")
-    guide_window.geometry("900x650")
+    guide_window.geometry("950x700")
     guide_window.iconbitmap(icon_path)
 
     # Ensure the guide window stays on top of the main window
@@ -70,18 +74,18 @@ def show_guide():
     instructions = """
     Руководство по использованию SWCHECK:
 
-    1. Укажите IP адреса устройств, с которых необходимо собрать информацию.
+    1. Укажите IP адреса устройств, с которых необходимо собрать информацию:
         - Нажмите кнопку "Указать"
         - В появившемся окне укажите IP адреса в столбце без запятых и прочих знаков препинания.
-        - Применить
+        - "Применить"
         Если операция прошла успешна - появится галочка.
 
     2. Скачайте Excel таблицу, которую потом необходимо заполнить с вашей корректной коммутацией (просьба не изменять название "шапки":
        - Нажмите кнопку "Скачать"
        - Дайте имя файлу и сохраните в удобное для Вас место.
-    
-    3. Выберите измененный Вами файл в предыдущем действии
-       - Загрузить 
+
+    3. Выберите измененный Вами файл в предыдущем действии:
+       - "Выбрать" 
 
     4. Укажите логин и пароль:
        - Введите логин и пароль в соответствующие поля и нажмите "Сохранить данные".
@@ -89,29 +93,38 @@ def show_guide():
        либо указать для этого устройства другой логин или пароль.
        - Нажмите "Сохранить данные"
 
-    4. Нажмите кнопку "Начать проверку" для запуска процесса проверки коммутации.
+    5. Нажмите кнопку "Начать проверку" для запуска процесса проверки коммутации.
 
-    5. После завершения проверки, новая таблица будет сохранена в текущей директории.
+    6. После завершения проверки, новая таблица будет сохранена в текущей директории.
 
     Если в папке с swcheck.exe уже присутствуют файлы ip.txt, com_table.xlsx, .env - то можно сразу начать проверку.
     В дальнейшем, если так удобнее, то можно изменять эти файлы в ручную, а не через кнопки.
-    
-    Необходимо учесть, что проверка LLDP работает для всех 4-х вендоров: Huawei (DC switches), Cisco (Nexus Switches), B4COM 4xxx-2xxx)
+
+    Необходимо учесть, что проверка LLDP работает пока что только для 4-х вендоров: Huawei (DC switches), Cisco (Nexus Switches), B4COM 4xxx-2xxx)
     Проверка сигналов TX/RX работает только для Huawei (DC switches) и B4COM 4xxx.
 
     Сравнивание RX/TX производится следующим образом: берет текущее значение TX/RX с оборудования и сравнивается с диапазоном от -4 до 4.
     Если между этим диапазоном = GOOD, если нет = BAD, если -, --, -40.00 = No Signal
-    
+
     Удачной Вам проверки!
     v1.0
+
+    Telegram:
+    @likeabus
+    @manwithwine
+
+    Github:
+    https://github.com/manwithwine
+
     """
 
     guide_label = ctk.CTkLabel(guide_window, text=instructions, justify="left", font=("Arial", 12))
-    guide_label.pack(padx=10, pady=10, fill="both", expand=True)
+    guide_label.pack(padx=10, pady=1, fill="both", expand=True)
 
-    # Add a close button
-    close_button = ctk.CTkButton(guide_window, text="Закрыть", command=guide_window.destroy, width=100)
-    close_button.pack(pady=10)
+    # # Add a close button
+    # close_button = ctk.CTkButton(guide_window, text="Закрыть", command=guide_window.destroy, width=100)
+    # close_button.pack(pady=10)
+
 
 # Add the "?" button to the main window
 help_button = ctk.CTkButton(root, text="?", width=30, height=30, command=show_guide)
@@ -122,12 +135,14 @@ checkmark_ip = ctk.CTkLabel(root, text="", font=("Arial", 16))  # For IP upload
 checkmark_excel = ctk.CTkLabel(root, text="", font=("Arial", 16))  # For Excel upload
 checkmark_credentials = ctk.CTkLabel(root, text="", font=("Arial", 16))  # For credentials
 
+
 # Function to upload IP text file
 def upload_txt():
     file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
     if file_path:
         shutil.copy(file_path, "ip.txt")  # Copy and rename file
         checkmark_ip.configure(text="✔️")  # Show checkmark
+
 
 # Function to manually input IP addresses
 def manual_ip_input():
@@ -151,7 +166,8 @@ def manual_ip_input():
     ip_window.grab_set()
     ip_window.lift()
 
-    instruction_label = ctk.CTkLabel(ip_window, text="Просьба указать IP адрес или адреса в столбец без указательных знаков, например:\n1.1.1.1\n2.2.2.2\n3.3.3.3\nи т.д.")
+    instruction_label = ctk.CTkLabel(ip_window,
+                                     text="Просьба указать IP адрес или адреса в столбец без указательных знаков, например:\n1.1.1.1\n2.2.2.2\n3.3.3.3\nи т.д.")
     instruction_label.pack(pady=2)
 
     ip_text = ctk.CTkTextbox(ip_window, wrap="word", height=150)
@@ -159,6 +175,7 @@ def manual_ip_input():
 
     save_button = ctk.CTkButton(ip_window, text="Применить", command=save_ips, width=200)
     save_button.pack(pady=10)
+
 
 def download_sample_excel():
     # Get the path to the bundled sample file
@@ -183,12 +200,14 @@ def download_sample_excel():
         except Exception as e:
             messagebox.showerror("Ошибка", f"Не удалось сохранить файл: {str(e)}")
 
+
 # Function to upload Excel file
 def upload_excel():
     file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
     if file_path:
         shutil.copy(file_path, "com_table.xlsx")  # Copy and rename file
         checkmark_excel.configure(text="✔️")  # Show checkmark
+
 
 # Function to set login and password in .env file
 def set_credentials():
@@ -205,6 +224,7 @@ def set_credentials():
         f.write(f"DEVICE_PASSWORD={password}\n")
 
     checkmark_credentials.configure(text="✔️")  # Show checkmark
+
 
 # Function to start comparing
 def start_comparing():
@@ -272,10 +292,12 @@ def start_comparing():
     # Run the script in a separate thread to avoid freezing the GUI
     threading.Thread(target=run_script, daemon=True).start()
 
+
 # UI Elements
 label_welcome = ctk.CTkLabel(root, text="Добро пожаловать в SWCHECK!", font=("Arial", 16, "bold"))
-label_welcome.grid(row=0, column=0, columnspan=3, pady=100)
-label_guide = ctk.CTkLabel(root, text="Заполните необходимые данные по порядку и нажмите на кнопку - Начать проверку")
+label_welcome.grid(row=0, column=0, columnspan=3, pady=30)
+label_guide = ctk.CTkLabel(root, text="Заполните необходимые данные по порядку и нажмите на кнопку - Начать проверку",
+                           font=("Arial", 16, "bold"))
 label_guide.grid(row=1, column=0, columnspan=3, pady=40)
 
 # Manual IP input
@@ -286,7 +308,8 @@ btn_manual_ip.grid(row=3, column=0, columnspan=3, pady=1)
 checkmark_ip.grid(row=3, column=1, columnspan=3, pady=1)  # Place checkmark to the right of the button
 
 # Download sample Excel file
-label_download_sample = ctk.CTkLabel(root, text="Скачайте образец Excel файла, заполните данными с корректной коммутацией:")
+label_download_sample = ctk.CTkLabel(root,
+                                     text="Скачайте образец Excel файла, заполните данными с корректной коммутацией:")
 label_download_sample.grid(row=4, column=0, columnspan=3, pady=1)
 btn_download_sample = ctk.CTkButton(root, text="Скачать", command=download_sample_excel, width=200)
 btn_download_sample.grid(row=5, column=0, columnspan=3, pady=1)

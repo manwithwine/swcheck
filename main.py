@@ -36,7 +36,7 @@ def main():
 
     root = tk.Tk()
     root.withdraw()  # Hide the main window
-    root.iconbitmap(default="")
+    root.iconbitmap()
     root.attributes('-toolwindow', True)
 
     # Collect and clean logs for each device
