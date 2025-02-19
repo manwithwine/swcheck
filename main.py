@@ -1,6 +1,7 @@
 import os
-from dotenv import load_dotenv
 import tkinter as tk
+
+from dotenv import load_dotenv
 from tkinter import simpledialog
 
 from classes.device import Device
@@ -12,11 +13,9 @@ from classes.parser_signal import SignalLogParser
 
 load_dotenv()  # Load environment variables from a .env file
 
-
 def read_ip_addresses(file_path):
     with open(file_path, "r") as file:
         return file.readlines()
-
 
 def main():
     # Read IP addresses from the file
@@ -36,7 +35,7 @@ def main():
 
     root = tk.Tk()
     root.withdraw()  # Hide the main window
-    root.iconbitmap()
+    root.iconbitmap(default="")
     root.attributes('-toolwindow', True)
 
     # Collect and clean logs for each device

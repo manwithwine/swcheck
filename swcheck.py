@@ -110,8 +110,8 @@ def show_guide():
     v2.1
 
     Telegram:
-    @likeabus
-    @manwithwine
+    t.me/like_a_bus_channel
+    t.me/manwithwine
 
     Github:
     https://github.com/manwithwine
@@ -120,10 +120,6 @@ def show_guide():
 
     guide_label = ctk.CTkLabel(guide_window, text=instructions, justify="left", font=("Arial", 12))
     guide_label.pack(padx=10, pady=1, fill="both", expand=True)
-
-    # # Add a close button
-    # close_button = ctk.CTkButton(guide_window, text="Закрыть", command=guide_window.destroy, width=100)
-    # close_button.pack(pady=10)
 
 
 # Add the "?" button to the main window
@@ -205,8 +201,17 @@ def download_sample_excel():
 def upload_excel():
     file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
     if file_path:
-        shutil.copy(file_path, "com_table.xlsx")  # Copy and rename file
-        checkmark_excel.configure(text="✔️")  # Show checkmark
+        try:
+            # Ensure the destination file is removed if it already exists
+            if os.path.exists("com_table.xlsx"):
+                os.remove("com_table.xlsx")
+
+            # Copy the selected file to the destination with the correct name
+            shutil.copy(file_path, "com_table.xlsx")
+            checkmark_excel.configure(text="✔️")  # Show checkmark
+            messagebox.showinfo("Успешно", "Файл успешно загружен и переименован в com_table.xlsx")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось загрузить файл: {str(e)}")
 
 
 # Function to set login and password in .env file

@@ -16,6 +16,7 @@ class OutputCleaner:
             cleaned_output = cleaned_output.replace(
                 'Info: The configuration takes effect on the current user terminal interface only.', '')
             cleaned_output = cleaned_output.strip()
+
         elif vendor == "Cisco":
             cleaned_output = re.sub(r'Hostname\n\n', 'Hostname', cleaned_output)
             cleaned_output = cleaned_output.replace('Command: show hostname', '')
@@ -27,22 +28,19 @@ class OutputCleaner:
             cleaned_output = re.sub(r'Total entries displayed:.*', '',
                                     cleaned_output)
             cleaned_output = cleaned_output.strip()
+
         elif vendor == "B4COM":
             # Remove unnecessary patterns
             cleaned_output = cleaned_output.replace('Nearest bridge', '')
             cleaned_output = cleaned_output.replace('Command: show hostname', '')
             cleaned_output = cleaned_output.replace('Command: show lldp neighbors brief | include bridge', '')
-
             # Remove chassis ID patterns
             cleaned_output = re.sub(r'([a-f0-9]{4}\.[a-f0-9]{4}\.[a-f0-9]{4})(?=\s+[a-f0-9]{4}\.[a-f0-9]{4}\.[a-f0-9]{4})', '', cleaned_output)
-
-
             # Remove lines starting with "---" or "Loc PortID"
             cleaned_output = "\n".join(
                 line for line in cleaned_output.splitlines()
                 if not (line.strip().startswith('---') or line.strip().startswith('Loc PortID'))
             )
-
             # Strip unnecessary leading/trailing whitespace and empty lines
             cleaned_output = "\n".join(line.strip() for line in cleaned_output.splitlines() if line.strip())
 
