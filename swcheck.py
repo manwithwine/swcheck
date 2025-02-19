@@ -45,7 +45,7 @@ def show_result_log(output):
     log_window = ctk.CTkToplevel(root)
     log_window.title("Результат выполнения")
     log_window.geometry("600x400")
-    log_window.iconbitmap(icon_path)
+    log_window.after(200, lambda: log_window.iconbitmap(icon_path))
 
     # Lift the log window to make sure it stays on top of the main window
     log_window.grab_set()
@@ -65,10 +65,10 @@ def show_guide():
     guide_window = ctk.CTkToplevel(root)
     guide_window.title("Руководство по использованию")
     guide_window.geometry("950x700")
-    guide_window.iconbitmap(icon_path)
+    guide_window.after(200, lambda: guide_window.iconbitmap(icon_path))
 
     # Ensure the guide window stays on top of the main window
-    guide_window.grab_set()
+    guide_window.attributes("-top", True)
     guide_window.lift()
 
     # Add instructions
@@ -158,7 +158,7 @@ def manual_ip_input():
     ip_window = ctk.CTkToplevel(root)
     ip_window.title("Указать IP адрес/а")
     ip_window.geometry("750x470")
-    ip_window.iconbitmap(icon_path)
+    ip_window.after(200, lambda: ip_window.iconbitmap(icon_path))
 
     ip_window.grab_set()
     ip_window.lift()
