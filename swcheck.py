@@ -5,6 +5,7 @@ import sys
 import dotenv
 import threading
 import customtkinter as ctk
+
 from tkinter import filedialog, messagebox, scrolledtext
 from dotenv import load_dotenv
 
