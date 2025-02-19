@@ -11,11 +11,14 @@ from classes.cleanup_output import OutputCleaner
 from classes.cleanup_signal_output import SignalOutputCleaner
 from classes.parser_signal import SignalLogParser
 
-load_dotenv()  # Load environment variables from a .env file
+# Load environment variables from a .env file
+load_dotenv()
+
 
 def read_ip_addresses(file_path):
     with open(file_path, "r") as file:
         return file.readlines()
+
 
 def main():
     # Read IP addresses from the file
@@ -35,8 +38,10 @@ def main():
 
     root = tk.Tk()
     root.withdraw()  # Hide the main window
-    root.iconbitmap(default="")
+    icon_path = os.path.join(os.path.dirname(__file__), 'Icon1.ico')
+    root.iconbitmap(default=icon_path)
     root.attributes('-toolwindow', True)
+    root.geometry("400x150")
 
     # Collect and clean logs for each device
     for ip in ip_addresses:
@@ -117,8 +122,8 @@ def main():
                 if not choice or choice.lower() == "s":
                     break  # Skip this device
                 elif choice.lower() == "y":
-                    device.username = simpledialog.askstring("Логин", "Введите логин:", parent=root)
-                    device.password = simpledialog.askstring("Пароль", "Введите пароль:", show="*", parent=root)
+                    device.username = simpledialog.askstring("L", "Введите логин:", parent=root)
+                    device.password = simpledialog.askstring("P", "Введите пароль:", show="*", parent=root)
 
     if not all_logs:
         print("Логи не собраны.")
