@@ -33,7 +33,7 @@ class OutputCleaner:
             # Remove unnecessary patterns
             cleaned_output = cleaned_output.replace('Nearest bridge', '')
             cleaned_output = cleaned_output.replace('Command: show hostname', '')
-            cleaned_output = cleaned_output.replace('Command: show lldp neighbors brief | include bridge', '')
+            cleaned_output = cleaned_output.replace('Command: show lldp neighbors brief', '')
             # Remove chassis ID patterns
             cleaned_output = re.sub(r'([a-f0-9]{4}\.[a-f0-9]{4}\.[a-f0-9]{4})(?=\s+[a-f0-9]{4}\.[a-f0-9]{4}\.[a-f0-9]{4})', '', cleaned_output)
             # Remove lines starting with "---" or "Loc PortID"

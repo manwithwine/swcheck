@@ -108,10 +108,9 @@ def show_guide():
     Если между этим диапазоном = GOOD, если нет = BAD, если -, --, -40.00 = No Signal
 
     Удачной Вам проверки!
-    v2.1
+    v2.2
 
     Telegram:
-    t.me/like_a_bus_channel
     t.me/manwithwine
 
     Github:

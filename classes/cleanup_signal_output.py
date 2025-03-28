@@ -90,15 +90,23 @@ class SignalOutputCleaner:
             lines = raw_output.splitlines()
             result = []
 
-            # Extract the hostname from the first line
-            hostname = lines[0].strip()
-            result.append(f"{hostname}\n")
+            hostname = lines[0].split('>')[0].strip() if '>' in lines[0] else lines[0].strip()
+            result.append(hostname)
 
             current_interface = None
             tx_data = []  # To store TX values
             rx_data = []  # To store RX values
+            processing_first_table = True  # Flag to track which table we're processing
 
             for line in lines:
+                # Check if we've reached the second table header
+                if "PreFecBer" in line or "LvlTrans" in line:
+                    processing_first_table = False
+                    continue
+
+                if not processing_first_table:
+                    continue
+
                 # Remove `*` and `**` from the line
                 clean_line = re.sub(r"\*+", "", line).strip()
                 match = re.match(r"^(ce\d+|xe\d+)", clean_line)

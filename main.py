@@ -65,8 +65,8 @@ def main():
                                "display interface transceiver brief"],
                     "Cisco": ["terminal length 0", "show hostname", "show lldp neighbors",
                               "sh int transceiver det | exclude present"],
-                    "B4COM": ["terminal length 0", "show hostname", "show lldp neighbors brief | include bridge",
-                              "sh int transceiver | exclude Codes"],
+                    "B4COM": ["terminal length 0", "show hostname", "show lldp neighbors brief",
+                              "sh int transceiver"],
                     "B4TECH": ["terminal length 0", "show run | i hostname", "show lldp neigh br",
                                "sh transceiver detail"],
                 }
