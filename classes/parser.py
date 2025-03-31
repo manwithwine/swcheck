@@ -65,7 +65,7 @@ class LogParser:
             if len(parts) >= 3:
                 local_int = parts[0]
                 remote_host = parts[1]
-                remote_int = parts[2]
+                remote_int = parts[-1]
 
                 # Append parsed entry
                 if local_host:

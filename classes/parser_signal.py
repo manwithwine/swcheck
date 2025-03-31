@@ -107,3 +107,60 @@ class SignalLogParser:
 
         return parsed_entries
 
+    # @staticmethod
+    # def parse_cisco_signal_logs(lines):
+    #     parsed_entries = []
+    #     local_host = None
+    #     current_interface = None
+    #     tx_values = []
+    #     rx_values = []
+    #
+    #     for line in lines:
+    #         line = line.strip()
+    #
+    #         # Skip empty lines
+    #         if not line:
+    #             continue
+    #
+    #         # Get hostname from first line
+    #         if local_host is None:
+    #             local_host = line
+    #             continue
+    #
+    #         # Interface line
+    #         if line.startswith("Ethernet"):
+    #             # Save previous interface data if exists
+    #             if current_interface:
+    #                 parsed_entries.append({
+    #                     "local_host": local_host,
+    #                     "local_int": current_interface,
+    #                     "TX": ", ".join(tx_values),
+    #                     "RX": ", ".join(rx_values)
+    #                 })
+    #
+    #             # Start new interface
+    #             current_interface = line
+    #             tx_values = []
+    #             rx_values = []
+    #
+    #         # Tx Power line
+    #         elif line.startswith("Tx Power:"):
+    #             values = line.replace("Tx Power:", "").strip().split(", ")
+    #             tx_values = [v if v != '--' else '-40.00' for v in values]  # Replace -- with -40.00 for consistency
+    #
+    #         # Rx Power line
+    #         elif line.startswith("Rx Power:"):
+    #             values = line.replace("Rx Power:", "").strip().split(", ")
+    #             rx_values = [v if v != '--' else '-40.00' for v in values]  # Replace -- with -40.00 for consistency
+    #
+    #     # Add the last interface if it has data
+    #     if current_interface and (tx_values or rx_values):
+    #         parsed_entries.append({
+    #             "local_host": local_host,
+    #             "local_int": current_interface,
+    #             "TX": ", ".join(tx_values),
+    #             "RX": ", ".join(rx_values)
+    #         })
+    #
+    #     return parsed_entries
+

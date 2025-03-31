@@ -65,7 +65,7 @@ def main():
                                "display interface transceiver brief"],
                     "Cisco": ["terminal length 0", "show hostname", "show lldp neighbors",
                               "sh int transceiver det | exclude present"],
-                    "B4COM": ["terminal length 0", "show hostname", "show lldp neighbors brief",
+                    "B4COM": ["terminal length 0", "show hostname", "show lldp neighbors",
                               "sh int transceiver"],
                     "B4TECH": ["terminal length 0", "show run | i hostname", "show lldp neigh br",
                                "sh transceiver detail"],
@@ -161,6 +161,8 @@ def main():
             parsed_signal_data.extend(SignalLogParser.parse_huawei_signal_logs(lines))
         elif vendor == "B4COM":
             parsed_signal_data.extend(SignalLogParser.parse_b4com_signal_logs(lines))
+        # elif vendor == "Cisco":
+        #     parsed_signal_data.extend(SignalLogParser.parse_cisco_signal_logs(lines))
 
     # Populate Excel
     result_file = excel_handler.populate_and_compare(parsed_data, parsed_signal_data)
