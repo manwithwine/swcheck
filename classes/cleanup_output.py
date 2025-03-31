@@ -28,6 +28,7 @@ class OutputCleaner:
             cleaned_output = re.sub(r'Total entries displayed:.*', '',
                                     cleaned_output)
             cleaned_output = cleaned_output.strip()
+            # print(cleaned_output)
 
         elif vendor == "B4COM":
             # Remove unnecessary patterns
@@ -43,6 +44,7 @@ class OutputCleaner:
             )
             # Strip unnecessary leading/trailing whitespace and empty lines
             cleaned_output = "\n".join(line.strip() for line in cleaned_output.splitlines() if line.strip())
+            # print(cleaned_output)
 
         elif vendor == "B4TECH":
             cleaned_output = cleaned_output.replace('Command: show run | i hostname', '')

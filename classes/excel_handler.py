@@ -36,11 +36,17 @@ class ExcelHandler:
         return match.group(1) if match else hostname  # Extract part before `.X@Y.ru`, else return full hostname
 
     def normalize_interface_name(self, interface):
-        # Convert short interface names to full names for comparison.
-        return (interface
-                .replace("GigabitEthernet", "Gi")
-                .replace("FastEthernet", "Fa")
-                .replace("Ethernet", "Eth"))
+        """Two-way normalization between short and long interface names"""
+        if not isinstance(interface, str):
+            return interface  # handle non-string values
+
+        # First convert to a standard short form
+        interface = (
+            interface.replace("GigabitEthernet", "Gi")
+            .replace("FastEthernet", "Fa")
+            .replace("Ethernet", "Eth")
+            .replace("TenGigabitEthernet", "Te")
+        )
 
     def add_borders_to_excel(self, file_path):
         """Adds borders to all cells in the Excel file."""

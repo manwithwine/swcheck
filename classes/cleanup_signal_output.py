@@ -143,35 +143,69 @@ class SignalOutputCleaner:
 
             return '\n'.join(result)
 
-
-        elif vendor == "Cisco":
-            result = []
-            lines = raw_output.splitlines()
-            lane_mode = False
-
-            # Extract the hostname from the first line
-            hostname = lines[0].strip()
-            result.append(hostname)
-            # print(f"Hostname added: {hostname}")  # Debug: Log hostname
-
-            # Process the remaining lines, skipping the first one
-            for line in lines[1:]:  # Start from the second line
-                line = line.strip()
-
-                if re.match(r"Ethernet\d+/\d+", line):  # Match interface names
-                    result.append(line)
-                    lane_mode = False
-
-                elif line.startswith("Lane Number:"):
-                    lane_mode = True
-                    result.append(line)
-
-                elif "Tx Power" in line or "Rx Power" in line:
-                    # Match Tx/Rx power and keep only the first two columns, discard the rest
-                    cleaned_line = re.sub(r"(Tx Power|Rx Power)\s+(\S+)(.*)", r"\1 \2", line)
-                    result.append("  " + cleaned_line if lane_mode else cleaned_line)
-
-            return "\n".join(result)
+        # elif vendor == "Cisco":
+        #     result = []
+        #     lines = raw_output.splitlines()
+        #
+        #     # Extract hostname (first line before #)
+        #     hostname = lines[0].split('#')[0].strip()
+        #     result.append(hostname)
+        #     current_interface = None
+        #     lane_data = {}  # {lane_number: {'tx': value, 'rx': value}}
+        #
+        #     for line in lines:
+        #         line = line.strip()
+        #         # Find interface lines
+        #         if line.startswith("Ethernet"):
+        #             # Process previous interface if exists
+        #             if current_interface:
+        #                 result.append(current_interface)
+        #
+        #                 # Collect all TX/RX values in order
+        #                 tx_values = []
+        #                 rx_values = []
+        #
+        #                 for lane in sorted(lane_data.keys()):
+        #                     tx_values.append(lane_data[lane].get('tx', '--'))
+        #                     rx_values.append(lane_data[lane].get('rx', '--'))
+        #                 result.append(f"  Tx Power: {', '.join(tx_values)}")
+        #                 result.append(f"  Rx Power: {', '.join(rx_values)}")
+        #
+        #             # Start new interface
+        #             current_interface = line
+        #             lane_data = {}
+        #             continue
+        #
+        #         # Find lane number
+        #         if line.startswith("Lane Number:"):
+        #             current_lane = int(line.split(':')[1].split()[0])
+        #             lane_data[current_lane] = {'tx': '--', 'rx': '--'}  # Initialize with defaults
+        #
+        #         # Find Tx/Rx power values
+        #         elif "Tx Power" in line and current_lane:
+        #             parts = line.split()
+        #             if len(parts) >= 3 and parts[2] != "N/A":
+        #                 lane_data[current_lane]['tx'] = parts[2]
+        #
+        #         elif "Rx Power" in line and current_lane:
+        #             parts = line.split()
+        #             if len(parts) >= 3 and parts[2] != "N/A":
+        #                 lane_data[current_lane]['rx'] = parts[2]
+        #
+        #     # Process the last interface
+        #     if current_interface and lane_data:
+        #         result.append(current_interface)
+        #         tx_values = []
+        #         rx_values = []
+        #
+        #         for lane in sorted(lane_data.keys()):
+        #             tx_values.append(lane_data[lane].get('tx', '--'))
+        #             rx_values.append(lane_data[lane].get('rx', '--'))
+        #
+        #         result.append(f"  Tx Power: {', '.join(tx_values)}")
+        #         result.append(f"  Rx Power: {', '.join(rx_values)}")
+        #
+        #     return "\n".join(result)
 
         elif vendor == "B4TECH":
             result = []
@@ -180,7 +214,6 @@ class SignalOutputCleaner:
             # Extract the hostname from the first line
             hostname = lines[0].replace('hostname ', '').strip()
             result.append(f"{hostname}\n")
-
 
             # Step 2: Loop through the lines to find 'eth-0-x' and process every 4th and 5th line
             eth_port_data = []
