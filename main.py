@@ -14,7 +14,6 @@ from classes.parser_signal import SignalLogParser
 # Load environment variables from a .env file
 load_dotenv()
 
-
 def read_ip_addresses(file_path):
     with open(file_path, "r") as file:
         return file.readlines()
@@ -104,6 +103,14 @@ def main():
                 # Disconnect the device after processing
                 device.disconnect()
                 print(f"Разъединение от {ip}")
+                try:
+                    import tkinter
+                    from tkinter import _default_root
+                    if hasattr(_default_root, 'after'):
+                        _default_root.after(0, lambda: _default_root.event_generate('<<DeviceChecked>>'))
+                except Exception:
+                    pass
+
                 break
 
             else:  # Connection failed
@@ -112,6 +119,16 @@ def main():
                 # Skip device if the failure is not due to authentication
                 if "Authentication failed" not in device.last_error:
                     print(f"Пропускаем устройство {ip}.")
+
+                    # Trigger GUI progress update for skipped device
+                    try:
+                        import tkinter
+                        from tkinter import _default_root
+                        if hasattr(_default_root, 'after'):
+                            _default_root.after(0, lambda: _default_root.event_generate('<<DeviceChecked>>'))
+                    except Exception:
+                        pass
+
                     break
 
                     # If authentication failed, ask for new credentials

@@ -1,6 +1,5 @@
 import os
 import shutil
-import subprocess
 import sys
 import dotenv
 import threading
@@ -108,7 +107,7 @@ def show_guide():
     Если между этим диапазоном = GOOD, если нет = BAD, если -, --, -40.00 = No Signal
 
     Удачной Вам проверки!
-    v2.3
+    v2.4
 
     Telegram:
     t.me/manwithwine
@@ -235,33 +234,40 @@ progress_label = None
 total_devices = 0
 checked_devices = 0
 
-# Add this function to safely update the progress label
+def handle_device_checked(event):
+    global checked_devices
+    checked_devices += 1
+    update_progress_label()
+
+root.bind('<<DeviceChecked>>', handle_device_checked)
+
+
 def update_progress_label():
     if progress_label:
         progress_label.configure(text=f"Проверено: {checked_devices}/{total_devices} устройств")
 
 # Function to start comparing
 def start_comparing():
-    global process, total_devices, checked_devices, progress_label
+    global total_devices, checked_devices, progress_label
 
-    # Reset progress counters
     checked_devices = 0
-    total_devices = 0
 
+    # Check required files
     if not os.path.exists("ip.txt") or not os.path.exists("com_table.xlsx"):
         messagebox.showerror("Ошибка", "Просьба загрузить и указать необходимые данные!")
         return
 
-    # Count the number of IPs to check
+    # Count IPs
     try:
-        with open("ip.txt", "r") as f:
+        with open("ip.txt", "r", encoding='utf-8') as f:
             ip_list = [line.strip() for line in f if line.strip()]
         total_devices = len(ip_list)
     except Exception as e:
         messagebox.showerror("Ошибка", f"Не удалось прочитать IP адреса: {str(e)}")
         return
 
-    dotenv.load_dotenv(override=True)  # Reload .env to apply changes
+    # Check credentials
+    dotenv.load_dotenv(override=True)
     username = os.getenv("DEVICE_USERNAME")
     password = os.getenv("DEVICE_PASSWORD")
 
@@ -269,81 +275,59 @@ def start_comparing():
         messagebox.showerror("Ошибка", "Укажите логин и пароль и сохраните данные!")
         return
 
-    if getattr(sys, 'frozen', False):
-        script_path = os.path.join(sys._MEIPASS, "main.py")
-    else:
-        script_path = "main.py"
-
-    if not os.path.exists(script_path):
-        messagebox.showerror("Ошибка", f"Cannot find main.py at {script_path}")
-        return
-
-    # Create progress bar and label
+    # Setup progress UI
     progress_bar = ctk.CTkProgressBar(root, mode="indeterminate")
     progress_bar.grid(row=13, column=0, columnspan=3, pady=5, sticky="ew")
 
-    # Create progress label
     progress_label = ctk.CTkLabel(root, text=f"Проверено: 0/{total_devices} устройств", font=("Arial", 12))
     progress_label.grid(row=14, column=0, columnspan=3, pady=5)
 
     progress_bar.start()
 
-    def run_script():
-        global process, checked_devices
-
+    def run_check():
+        global checked_devices
         output = ""
-        current_ip = None
+
         try:
-            # Start the process with UTF-8 encoding
-            process = subprocess.Popen(
-                ["python", script_path],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                encoding='utf-8',
-                creationflags=subprocess.CREATE_NO_WINDOW
-            )
+            # Import main functions directly
+            from main import read_ip_addresses, main
 
-            for line in process.stdout:
-                output += line
-                print(line.strip())
+            # Redirect stdout to capture output
+            from io import StringIO
+            import sys
 
-                # Track the current IP being processed
-                if "Подключение к устройству с IP:" in line:
-                    current_ip = line.split(":")[1].strip()
-                    print(f"Начата проверка устройства {current_ip}")
+            old_stdout = sys.stdout
+            sys.stdout = mystdout = StringIO()
 
-                # Only count when disconnection happens (device completed)
-                elif "Разъединение от" in line and current_ip:
-                    checked_devices += 1
-                    root.after(0, update_progress_label)
-                    print(f"Завершена проверка устройства {current_ip}")
-                    current_ip = None
+            # Run main logic
+            main()
 
-            process.wait()
-            if process.returncode == 0:
-                messagebox.showinfo("Успешно", "Коммутация проверена. Новая таблица сохранена в текущей директории!")
-            else:
-                stderr_output = process.stderr.read()
-                messagebox.showerror("Ошибка", f"В процессе выполнения произошла ошибка:\n{stderr_output}")
+            # Restore stdout
+            sys.stdout = old_stdout
+            output = mystdout.getvalue()
+
+            # Update progress
+            checked_devices = total_devices
+            root.after(0, update_progress_label)
+
+            # Show success
+            root.after(0, lambda: messagebox.showinfo("Успешно", "Коммутация проверена. Новая таблица сохранена!"))
 
         except Exception as e:
-            messagebox.showerror("Ошибка", f"Неизвестная ошибка: {str(e)}")
+            output += f"\nОшибка: {str(e)}"
+            root.after(0, lambda: messagebox.showerror("Ошибка", f"Произошла ошибка: {str(e)}"))
 
         finally:
             progress_bar.stop()
             progress_bar.grid_forget()
             if progress_label:
                 progress_label.grid_forget()
-            process = None
-            show_result_log(output)
 
-    def update_progress_label():
-        if progress_label:
-            progress_label.configure(text=f"Проверено: {checked_devices}/{total_devices} устройств")
+            if output:
+                show_result_log(output)
 
-    # Run the script in a separate thread to avoid freezing the GUI
-    threading.Thread(target=run_script, daemon=True).start()
+    # Run in thread
+    threading.Thread(target=run_check, daemon=True).start()
 
 
 # UI Elements
