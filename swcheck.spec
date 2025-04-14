@@ -1,16 +1,10 @@
 # linkcheck.spec
-
-from PyInstaller.utils.hooks import collect_submodules
-import os
-
 a = Analysis(
     ['swcheck.py'],  # Entry point: GUI script
     pathex=['.'],
-    hiddenimports=collect_submodules('classes'),  # Include all submodules in 'classes'
     datas=[
         ('main.py', '.'),
         ('Icon1.ico', '.'),
-        ('.env', '.'),
         ('classes', 'classes'),
         ('com_table_sample.xlsx', '.'),
     ],

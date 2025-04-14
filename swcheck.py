@@ -230,13 +230,21 @@ def set_credentials():
     checkmark_credentials.configure(text="✔️")  # Show checkmark
 
 # Modify the global variables section
-progress_label = None
-total_devices = 0
 checked_devices = 0
+skipped_devices = 0
+total_devices = 0
+last_event_was_skipped = False  # NEW
+progress_label = None
+
 
 def handle_device_checked(event):
-    global checked_devices
-    checked_devices += 1
+    global checked_devices, skipped_devices, last_event_was_skipped
+
+    if last_event_was_skipped:
+        skipped_devices += 1
+    else:
+        checked_devices += 1
+
     update_progress_label()
 
 root.bind('<<DeviceChecked>>', handle_device_checked)
@@ -300,7 +308,7 @@ def start_comparing():
             sys.stdout = mystdout = StringIO()
 
             # Run main logic
-            main()
+            result_file, checked_result, skipped_result = main()
 
             # Restore stdout
             sys.stdout = old_stdout
@@ -310,8 +318,39 @@ def start_comparing():
             checked_devices = total_devices
             root.after(0, update_progress_label)
 
-            # Show success
-            root.after(0, lambda: messagebox.showinfo("Успешно", "Коммутация проверена. Новая таблица сохранена!"))
+            def show_summary_popup(log_output, result_file, checked_result, skipped_result):
+                result_window = ctk.CTkToplevel(root)
+                result_window.title("Результат проверки")
+                result_window.geometry("480x180")
+                result_window.after(200, lambda: result_window.iconbitmap(icon_path))
+                result_window.grab_set()
+                result_window.lift()
+
+                message = (
+                    f"Успешно проверено: {checked_result} устройств.\n"
+                    f"Не удалось подключиться к: {skipped_result} устройству/ам.\n"
+                    f"\nРезультат сохранен в файл:\n{result_file}"
+                )
+                msg_label = ctk.CTkLabel(result_window, text=message, font=("Arial", 14), justify="left")
+                msg_label.pack(padx=10, pady=10)
+
+                button_frame = ctk.CTkFrame(result_window)
+                button_frame.pack(pady=10)
+
+                def close_summary():
+                    result_window.destroy()
+
+                def show_full_log():
+                    result_window.destroy()
+                    show_result_log(log_output)
+
+                btn_ok = ctk.CTkButton(button_frame, text="ОК", command=close_summary, width=120)
+                btn_details = ctk.CTkButton(button_frame, text="Подробнее", command=show_full_log, width=120)
+                btn_ok.grid(row=0, column=0, padx=10)
+                btn_details.grid(row=0, column=1, padx=10)
+
+            # show summary window instead of simple messagebox
+            root.after(0, lambda: show_summary_popup(output, result_file, checked_result, skipped_result))
 
         except Exception as e:
             output += f"\nОшибка: {str(e)}"
@@ -323,8 +362,7 @@ def start_comparing():
             if progress_label:
                 progress_label.grid_forget()
 
-            if output:
-                show_result_log(output)
+            pass
 
     # Run in thread
     threading.Thread(target=run_check, daemon=True).start()

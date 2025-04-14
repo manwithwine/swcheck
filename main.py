@@ -20,6 +20,10 @@ def read_ip_addresses(file_path):
 
 
 def main():
+
+    checked = 0
+    skipped = 0
+
     # Read IP addresses from the file
     ip_addresses = read_ip_addresses("ip.txt")
     if not ip_addresses:
@@ -103,9 +107,14 @@ def main():
                 # Disconnect the device after processing
                 device.disconnect()
                 print(f"Разъединение от {ip}")
+                checked += 1
+                # Notify success
                 try:
                     import tkinter
                     from tkinter import _default_root
+                    import builtins
+
+                    builtins.last_event_was_skipped = False
                     if hasattr(_default_root, 'after'):
                         _default_root.after(0, lambda: _default_root.event_generate('<<DeviceChecked>>'))
                 except Exception:
@@ -119,11 +128,15 @@ def main():
                 # Skip device if the failure is not due to authentication
                 if "Authentication failed" not in device.last_error:
                     print(f"Пропускаем устройство {ip}.")
+                    skipped += 1
 
-                    # Trigger GUI progress update for skipped device
+                    # Notify skip
                     try:
                         import tkinter
                         from tkinter import _default_root
+                        import builtins
+
+                        builtins.last_event_was_skipped = True
                         if hasattr(_default_root, 'after'):
                             _default_root.after(0, lambda: _default_root.event_generate('<<DeviceChecked>>'))
                     except Exception:
@@ -184,6 +197,7 @@ def main():
     # Populate Excel
     result_file = excel_handler.populate_and_compare(parsed_data, parsed_signal_data)
     print(f"Результат сохранен в файл {result_file}")
+    return result_file, checked, skipped
 
 
 if __name__ == "__main__":
